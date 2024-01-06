@@ -36,6 +36,8 @@ class TableCalendarBase extends StatefulWidget {
   final SwipeCallback? onVerticalSwipe;
   final void Function(DateTime focusedDay)? onPageChanged;
   final void Function(PageController pageController)? onCalendarCreated;
+  final void Function(int length)? getRowLength;
+  final void Function(double height)? getPageHeight;
 
   TableCalendarBase({
     Key? key,
@@ -74,6 +76,8 @@ class TableCalendarBase extends StatefulWidget {
     this.onVerticalSwipe,
     this.onPageChanged,
     this.onCalendarCreated,
+    this.getRowLength,
+    this.getPageHeight,
   })  : assert(!dowVisible || (dowHeight != null && dowBuilder != null)),
         assert(isSameDay(focusedDay, firstDay) || focusedDay.isAfter(firstDay)),
         assert(isSameDay(focusedDay, lastDay) || focusedDay.isBefore(lastDay)),
@@ -97,6 +101,8 @@ class _TableCalendarBaseState extends State<TableCalendarBase> {
 
     final rowCount = _getRowCount(widget.calendarFormat, _focusedDay);
     _pageHeight = ValueNotifier(_getPageHeight(rowCount));
+    widget.getRowLength?.call(rowCount);
+    widget.getPageHeight?.call(_pageHeight.value);
 
     final initialPage = _calculateFocusedPage(
         widget.calendarFormat, widget.firstDay, _focusedDay);
@@ -127,6 +133,8 @@ class _TableCalendarBaseState extends State<TableCalendarBase> {
         widget.sixWeekMonthsEnforced != oldWidget.sixWeekMonthsEnforced) {
       final rowCount = _getRowCount(widget.calendarFormat, _focusedDay);
       _pageHeight.value = _getPageHeight(rowCount);
+      widget.getRowLength?.call(rowCount);
+      widget.getPageHeight?.call(_pageHeight.value);
     }
   }
 
@@ -178,6 +186,8 @@ class _TableCalendarBaseState extends State<TableCalendarBase> {
     _previousIndex = currentIndex;
     final rowCount = _getRowCount(widget.calendarFormat, _focusedDay);
     _pageHeight.value = _getPageHeight(rowCount);
+    widget.getRowLength?.call(rowCount);
+    widget.getPageHeight?.call(_pageHeight.value);
 
     _pageCallbackDisabled = false;
   }
@@ -241,6 +251,8 @@ class _TableCalendarBaseState extends State<TableCalendarBase> {
                       focusedMonth,
                     );
                     _pageHeight.value = _getPageHeight(rowCount);
+                    widget.getRowLength?.call(rowCount);
+                    widget.getPageHeight?.call(_pageHeight.value);
                   }
 
                   _previousIndex = index;
